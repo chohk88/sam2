@@ -114,7 +114,7 @@ class FpnNeck(nn.Module):
             lateral_features = self.convs[n - i](x)
             if i in self.fpn_top_down_levels and prev_features is not None:
                 top_down_features = F.interpolate(
-                    prev_features.to(dtype=torch.float32),
+                    prev_features,
                     scale_factor=2.0,
                     mode=self.fpn_interp_model,
                     align_corners=(

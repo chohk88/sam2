@@ -144,12 +144,18 @@ class LayerNorm2d(nn.Module):
         self.weight = nn.Parameter(torch.ones(num_channels))
         self.bias = nn.Parameter(torch.zeros(num_channels))
         self.eps = eps
+        self.num_channels = num_channels
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        u = x.mean(1, keepdim=True)
-        s = (x - u).pow(2).mean(1, keepdim=True)
-        x = (x - u) / torch.sqrt(s + self.eps)
-        x = self.weight[:, None, None] * x + self.bias[:, None, None]
+        x = x.permute(0, 2, 3, 1) # (N, C, H, W) -> (N, H, W, C)
+        x = F.layer_norm(
+            x, 
+            normalized_shape=(self.num_channels,), 
+            weight=self.weight, 
+            bias=self.bias, 
+            eps=self.eps
+        )
+        x = x.permute(0, 3, 1, 2) # (N, H, W, C) -> (N, C, H, W)
         return x
 
 

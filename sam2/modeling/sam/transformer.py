@@ -266,8 +266,8 @@ class Attention(nn.Module):
         dropout_p = self.dropout_p if self.training else 0.0
         # Attention
         try:
-            with sdp_kernel_context(dropout_p):
-                out = F.scaled_dot_product_attention(q, k, v, dropout_p=dropout_p)
+            # Directly call scaled_dot_product_attention without sdp_kernel_context
+            out = F.scaled_dot_product_attention(q, k, v, dropout_p=dropout_p)
         except Exception as e:
             # Fall back to all kernels if the Flash attention kernel fails
             warnings.warn(
